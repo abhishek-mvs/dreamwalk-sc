@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 
-declare_id!("CbReUJFEuyGuAiQnvwDQNDSvjR6G2cWGZsTpqrj9EV6r");
+declare_id!("4ocyDMLyze1f5QkzpNcizycQPanFjR6by5pLxEbmepZE");
 
 #[program]
 pub mod dreamwalk {

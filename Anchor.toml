@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-dreamwalk = "CbReUJFEuyGuAiQnvwDQNDSvjR6G2cWGZsTpqrj9EV6r"
+dreamwalk = "4ocyDMLyze1f5QkzpNcizycQPanFjR6by5pLxEbmepZE"
 
 [registry]
 url = "https://api.apr.dev"
