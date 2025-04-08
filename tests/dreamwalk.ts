@@ -38,27 +38,27 @@ describe("dreamwalk", () => {
   console.log("Vault PDA", vaultPDA.toString());
   console.log("Vault Bump", vaultBump);
 
-  // it("Initialize the vault", async () => {
+  it("Initialize the vault", async () => {
   
     
-  //   const tx = await program.methods
-  //     .initialize()
-  //     .accounts({
-  //       vault: vaultPDA,
-  //       authority: provider.wallet.publicKey,
-  //       systemProgram: SystemProgram.programId,
-  //     })
-  //     .rpc();
+    const tx = await program.methods
+      .initialize()
+      .accounts({
+        vault: vaultPDA,
+        authority: provider.wallet.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .rpc();
 
-  //   console.log("Initialization transaction signature", tx);
-  //   console.log("Public key", provider.wallet.publicKey.toString());
-  //   // Verify the vault was created
-  //   const vaultAccount = await program.account.vault.fetch(vaultPDA);
-  //   expect(vaultAccount.authority.toString()).to.equal(
-  //     provider.wallet.publicKey.toString()
-  //   );
-  //   expect(vaultAccount.bump).to.equal(vaultBump);
-  // });
+    console.log("Initialization transaction signature", tx);
+    console.log("Public key", provider.wallet.publicKey.toString());
+    // Verify the vault was created
+    const vaultAccount = await program.account.vault.fetch(vaultPDA);
+    expect(vaultAccount.authority.toString()).to.equal(
+      provider.wallet.publicKey.toString()
+    );
+    expect(vaultAccount.bump).to.equal(vaultBump);
+  });
 
   it("Deposit funds to the vault", async () => {
     const depositAmount = new anchor.BN(0.5 * LAMPORTS_PER_SOL); // 0.5 SOL
@@ -122,22 +122,24 @@ describe("dreamwalk", () => {
     const transferAmount = new anchor.BN(0.1 * LAMPORTS_PER_SOL);
     
     // Create a new keypair to act as unauthorized user
-    const unauthorizedUser = anchor.web3.Keypair.generate();
-    
+    const unauthorizedUser = anchor.web3.Keypair.fromSecretKey(new Uint8Array([231,162,143,170,145,114,108,69,40,48,25,208,51,159,183,89,50,122,6,194,228,208,48,103,98,149,114,108,198,58,234,210,245,193,240,10,16,237,196,252,165,148,72,156,13,5,29,213,203,212,101,165,137,49,62,201,236,122,87,204,192,55,42,173]));
+
+    console.log("Unauthorized user public key", unauthorizedUser.publicKey.toString());
+    console.log("Receiver public key", unauthorizedUser.secretKey.toString());
     // Airdrop some SOL to unauthorized user for transaction fee
-    const signature = await provider.connection.requestAirdrop(
-      unauthorizedUser.publicKey,
-      LAMPORTS_PER_SOL
-    );
-    await provider.connection.confirmTransaction(signature);
+    // const signature = await provider.connection.requestAirdrop(
+    //   unauthorizedUser.publicKey,
+    //   LAMPORTS_PER_SOL
+    // );
+    // await provider.connection.confirmTransaction(signature);
 
     try {
       await program.methods
         .transfer(transferAmount)
         .accounts({
           vault: vaultPDA,
-          receiver: receiver.publicKey,
-          authority: unauthorizedUser.publicKey,
+          receiver: receiver,
+          authority: provider.wallet.publicKey,
           systemProgram: SystemProgram.programId,
         })
         .signers([unauthorizedUser])
@@ -147,6 +149,7 @@ describe("dreamwalk", () => {
       expect.fail("Expected transaction to fail");
     } catch (error) {
       // Transaction should fail
+      console.log("Error", error);
       expect(error).to.be.an("error");
     }
   });
